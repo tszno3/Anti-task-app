@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task OS — 업무 관리 시스템</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div id="app">
+    <!-- Sidebar -->
+    <aside id="sidebar">
+      <div class="sidebar-logo">
+        <span class="logo-icon">⚙</span>
+        <span class="logo-text">Task OS</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item" data-view="dashboard">
+          <span class="nav-icon">🏠</span>
+          <span class="nav-label">대시보드</span>
+        </a>
+        <a href="#" class="nav-item" data-view="inbox">
+          <span class="nav-icon">📥</span>
+          <span class="nav-label">수신함</span>
+          <span class="nav-badge" id="badge-inbox"></span>
+        </a>
+        <a href="#" class="nav-item" data-view="clarify">
+          <span class="nav-icon">🔍</span>
+          <span class="nav-label">검토</span>
+          <span class="nav-badge" id="badge-clarify"></span>
+        </a>
+        <a href="#" class="nav-item" data-view="plan">
+          <span class="nav-icon">📅</span>
+          <span class="nav-label">계획</span>
+        </a>
+        <a href="#" class="nav-item" data-view="today">
+          <span class="nav-icon">▶</span>
+          <span class="nav-label">오늘 할 일</span>
+          <span class="nav-badge nav-badge--accent" id="badge-today"></span>
+        </a>
+        <a href="#" class="nav-item" data-view="waiting">
+          <span class="nav-icon">⏳</span>
+          <span class="nav-label">대기 중</span>
+          <span class="nav-badge nav-badge--warning" id="badge-waiting"></span>
+        </a>
+        <a href="#" class="nav-item" data-view="done">
+          <span class="nav-icon">✅</span>
+          <span class="nav-label">완료</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="btn-ghost btn-sm" id="btn-seed" title="샘플 데이터 불러오기">
+          🌱 샘플 데이터
+        </button>
+        <button class="btn-ghost btn-sm" id="btn-clear" title="전체 데이터 삭제">
+          🗑 초기화
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main id="main-content">
+      <div id="view-container"></div>
+    </main>
+  </div>
+
+  <!-- Task Modal -->
+  <div id="modal-overlay" class="hidden">
+    <div id="task-modal">
+      <div class="modal-header">
+        <h2 id="modal-title">업무 상세</h2>
+        <button class="modal-close" id="modal-close">✕</button>
+      </div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast-container"></div>
+
+  <script src="data.js"></script>
+  <script src="views/task-modal.js"></script>
+  <script src="views/dashboard.js"></script>
+  <script src="views/inbox.js"></script>
+  <script src="views/clarify.js"></script>
+  <script src="views/plan.js"></script>
+  <script src="views/today.js"></script>
+  <script src="views/waiting.js"></script>
+  <script src="views/done.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
