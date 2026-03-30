@@ -18,7 +18,6 @@
       justify-content: center;
       z-index: 9999;
       flex-direction: column;
-      gap: 0;
     }
     #pin-screen.hidden { display: none; }
     .pin-box {
@@ -27,50 +26,22 @@
       border-radius: 16px;
       padding: 40px 36px;
       width: 320px;
+      max-width: 90vw;
       text-align: center;
     }
-    .pin-logo {
-      font-size: 32px;
-      margin-bottom: 8px;
-    }
-    .pin-title {
-      font-size: 20px;
-      font-weight: 600;
-      color: #fff;
-      margin-bottom: 4px;
-    }
-    .pin-subtitle {
-      font-size: 13px;
-      color: rgba(255,255,255,0.4);
-      margin-bottom: 28px;
-    }
-    .pin-dots {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
+    .pin-logo { font-size: 32px; margin-bottom: 8px; }
+    .pin-title { font-size: 20px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+    .pin-subtitle { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 28px; }
+    .pin-dots { display: flex; justify-content: center; gap: 12px; margin-bottom: 24px; }
     .pin-dot {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
+      width: 14px; height: 14px; border-radius: 50%;
       background: rgba(255,255,255,0.15);
       border: 2px solid rgba(255,255,255,0.2);
       transition: all 0.15s;
     }
-    .pin-dot.filled {
-      background: #4f46e5;
-      border-color: #4f46e5;
-    }
-    .pin-dot.error {
-      background: #ef4444;
-      border-color: #ef4444;
-    }
-    .pin-keypad {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
+    .pin-dot.filled { background: #4f46e5; border-color: #4f46e5; }
+    .pin-dot.error  { background: #ef4444; border-color: #ef4444; }
+    .pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .pin-key {
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.08);
@@ -83,16 +54,11 @@
       transition: background 0.15s;
       font-family: inherit;
     }
-    .pin-key:hover { background: rgba(255,255,255,0.12); }
+    .pin-key:hover  { background: rgba(255,255,255,0.12); }
     .pin-key:active { background: rgba(79,70,229,0.4); }
-    .pin-key.del { font-size: 16px; color: rgba(255,255,255,0.5); }
-    .pin-key.empty { visibility: hidden; }
-    .pin-error {
-      margin-top: 16px;
-      font-size: 13px;
-      color: #ef4444;
-      min-height: 20px;
-    }
+    .pin-key.del    { font-size: 16px; color: rgba(255,255,255,0.5); }
+    .pin-key.empty  { visibility: hidden; }
+    .pin-error { margin-top: 16px; font-size: 13px; color: #ef4444; min-height: 20px; }
   </style>
 </head>
 <body>
@@ -127,59 +93,73 @@
     </div>
   </div>
 
-  <!-- 앱 본체 (PIN 통과 후 표시) -->
+  <!-- 앱 본체 -->
   <div id="app" style="display:none;">
+
+    <!-- 사이드바 (데스크탑) -->
     <aside id="sidebar">
       <div class="sidebar-logo">
         <span class="logo-icon">⚙</span>
         <span class="logo-text">Task OS</span>
       </div>
       <nav class="sidebar-nav">
-        <a href="#" class="nav-item" data-view="dashboard">
-          <span class="nav-icon">🏠</span>
-          <span class="nav-label">대시보드</span>
-        </a>
-        <a href="#" class="nav-item" data-view="inbox">
-          <span class="nav-icon">📥</span>
-          <span class="nav-label">수신함</span>
-          <span class="nav-badge" id="badge-inbox"></span>
-        </a>
-        <a href="#" class="nav-item" data-view="clarify">
-          <span class="nav-icon">🔍</span>
-          <span class="nav-label">검토</span>
-          <span class="nav-badge" id="badge-clarify"></span>
-        </a>
-        <a href="#" class="nav-item" data-view="plan">
-          <span class="nav-icon">📅</span>
-          <span class="nav-label">계획</span>
-        </a>
-        <a href="#" class="nav-item" data-view="today">
-          <span class="nav-icon">▶</span>
-          <span class="nav-label">오늘 할 일</span>
-          <span class="nav-badge nav-badge--accent" id="badge-today"></span>
-        </a>
-        <a href="#" class="nav-item" data-view="waiting">
-          <span class="nav-icon">⏳</span>
-          <span class="nav-label">대기 중</span>
-          <span class="nav-badge nav-badge--warning" id="badge-waiting"></span>
-        </a>
-        <a href="#" class="nav-item" data-view="done">
-          <span class="nav-icon">✅</span>
-          <span class="nav-label">완료</span>
-        </a>
+        <a href="#" class="nav-item" data-view="dashboard"><span class="nav-icon">🏠</span><span class="nav-label">대시보드</span></a>
+        <a href="#" class="nav-item" data-view="inbox"><span class="nav-icon">📥</span><span class="nav-label">수신함</span><span class="nav-badge" id="badge-inbox"></span></a>
+        <a href="#" class="nav-item" data-view="clarify"><span class="nav-icon">🔍</span><span class="nav-label">검토</span><span class="nav-badge" id="badge-clarify"></span></a>
+        <a href="#" class="nav-item" data-view="plan"><span class="nav-icon">📅</span><span class="nav-label">계획</span></a>
+        <a href="#" class="nav-item" data-view="today"><span class="nav-icon">▶</span><span class="nav-label">오늘 할 일</span><span class="nav-badge nav-badge--accent" id="badge-today"></span></a>
+        <a href="#" class="nav-item" data-view="waiting"><span class="nav-icon">⏳</span><span class="nav-label">대기 중</span><span class="nav-badge nav-badge--warning" id="badge-waiting"></span></a>
+        <a href="#" class="nav-item" data-view="done"><span class="nav-icon">✅</span><span class="nav-label">완료</span></a>
       </nav>
       <div class="sidebar-footer">
-        <button class="btn-ghost btn-sm" id="btn-seed" title="샘플 데이터 불러오기">
-          🌱 샘플 데이터
-        </button>
-        <button class="btn-ghost btn-sm" id="btn-clear" title="전체 데이터 삭제">
-          🗑 초기화
-        </button>
+        <button class="btn-ghost btn-sm" id="btn-seed">🌱 샘플 데이터</button>
+        <button class="btn-ghost btn-sm" id="btn-clear">🗑 초기화</button>
       </div>
     </aside>
+
+    <!-- 메인 -->
     <main id="main-content">
       <div id="view-container"></div>
     </main>
+
+    <!-- 모바일 하단 탭바 -->
+    <nav class="mobile-tabbar">
+      <div class="mobile-tabbar__inner">
+        <button class="mobile-tab active" data-view="dashboard">
+          <span class="mobile-tab__icon">🏠</span>
+          <span>홈</span>
+        </button>
+        <button class="mobile-tab" data-view="today">
+          <span class="mobile-tab__icon">▶</span>
+          <span>오늘</span>
+          <span class="mobile-tab__badge" id="m-badge-today"></span>
+        </button>
+        <button class="mobile-tab" data-view="inbox">
+          <span class="mobile-tab__icon">📥</span>
+          <span>수신함</span>
+          <span class="mobile-tab__badge" id="m-badge-inbox"></span>
+        </button>
+        <button class="mobile-tab" data-view="waiting">
+          <span class="mobile-tab__icon">⏳</span>
+          <span>대기</span>
+          <span class="mobile-tab__badge" id="m-badge-waiting"></span>
+        </button>
+        <button class="mobile-tab" data-view="__more__">
+          <span class="mobile-tab__icon">☰</span>
+          <span>더보기</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- 모바일 더보기 메뉴 -->
+    <div class="mobile-more-menu" id="mobile-more-menu">
+      <button class="mobile-more-item" data-view="clarify">🔍 검토</button>
+      <button class="mobile-more-item" data-view="plan">📅 계획</button>
+      <button class="mobile-more-item" data-view="done">✅ 완료</button>
+      <button class="mobile-more-item" id="btn-seed">🌱 샘플 데이터</button>
+      <button class="mobile-more-item" id="btn-clear-mobile">🗑 초기화</button>
+    </div>
+
   </div>
 
   <!-- Task Modal -->
@@ -197,28 +177,21 @@
   <div id="toast-container"></div>
 
   <script>
-    // ── PIN 설정 (여기서 변경하세요) ──────────────────────
     const CORRECT_PIN = '1234'; // ← 원하는 PIN으로 바꾸세요
     const SESSION_KEY = 'taskos_pin_ok';
-    // ─────────────────────────────────────────────────────
-
     let pinValue = '';
 
     function pinInput(digit) {
       if (pinValue.length >= 4) return;
       pinValue += digit;
       updateDots();
-      if (pinValue.length === 4) {
-        setTimeout(checkPin, 150);
-      }
+      if (pinValue.length === 4) setTimeout(checkPin, 150);
     }
-
     function pinDelete() {
       pinValue = pinValue.slice(0, -1);
       updateDots();
       document.getElementById('pin-error').textContent = '';
     }
-
     function updateDots(state = 'normal') {
       for (let i = 0; i < 4; i++) {
         const dot = document.getElementById(`dot-${i}`);
@@ -227,7 +200,6 @@
         else if (i < pinValue.length) dot.classList.add('filled');
       }
     }
-
     function checkPin() {
       if (pinValue === CORRECT_PIN) {
         sessionStorage.setItem(SESSION_KEY, '1');
@@ -236,21 +208,14 @@
       } else {
         updateDots('error');
         document.getElementById('pin-error').textContent = '잘못된 PIN입니다. 다시 입력해주세요.';
-        setTimeout(() => {
-          pinValue = '';
-          updateDots();
-        }, 800);
+        setTimeout(() => { pinValue = ''; updateDots(); }, 800);
       }
     }
-
-    // 키보드 입력도 지원
     document.addEventListener('keydown', (e) => {
       if (document.getElementById('pin-screen').classList.contains('hidden')) return;
       if (e.key >= '0' && e.key <= '9') pinInput(e.key);
       if (e.key === 'Backspace') pinDelete();
     });
-
-    // 이미 인증된 세션이면 바로 통과
     if (sessionStorage.getItem(SESSION_KEY) === '1') {
       document.getElementById('pin-screen').classList.add('hidden');
       document.getElementById('app').style.display = '';
@@ -267,5 +232,57 @@
   <script src="views/waiting.js"></script>
   <script src="views/done.js"></script>
   <script src="app.js"></script>
+
+  <script>
+    // 모바일 탭바 동작
+    document.querySelectorAll('.mobile-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const view = tab.dataset.view;
+        if (view === '__more__') {
+          const menu = document.getElementById('mobile-more-menu');
+          menu.classList.toggle('open');
+          return;
+        }
+        document.getElementById('mobile-more-menu').classList.remove('open');
+        document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        navigate(view);
+      });
+    });
+
+    // 더보기 메뉴 항목
+    document.querySelectorAll('.mobile-more-item[data-view]').forEach(item => {
+      item.addEventListener('click', () => {
+        document.getElementById('mobile-more-menu').classList.remove('open');
+        navigate(item.dataset.view);
+      });
+    });
+
+    // 모바일 초기화 버튼
+    const btnClearMobile = document.getElementById('btn-clear-mobile');
+    if (btnClearMobile) {
+      btnClearMobile.addEventListener('click', () => {
+        document.getElementById('mobile-more-menu').classList.remove('open');
+        document.getElementById('btn-clear').click();
+      });
+    }
+
+    // 모바일 배지 업데이트 (updateBadges 오버라이드)
+    const _origUpdateBadges = typeof updateBadges === 'function' ? updateBadges : null;
+    function updateMobileBadges() {
+      const setB = (id, n) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = n > 0 ? n : '';
+      };
+      setB('m-badge-inbox',   getTasksByStatus('Inbox').length);
+      setB('m-badge-today',   getTodayTasks().length);
+      setB('m-badge-waiting', getWaitingTasks().length);
+    }
+
+    // 탭 클릭 시 모바일 배지도 갱신
+    document.addEventListener('click', () => {
+      if (typeof getTasksByStatus === 'function') updateMobileBadges();
+    });
+  </script>
 </body>
 </html>
