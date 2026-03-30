@@ -8,16 +8,132 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    #pin-screen {
+      position: fixed;
+      inset: 0;
+      background: #0f0f1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      flex-direction: column;
+      gap: 0;
+    }
+    #pin-screen.hidden { display: none; }
+    .pin-box {
+      background: #1a1a2e;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 40px 36px;
+      width: 320px;
+      text-align: center;
+    }
+    .pin-logo {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .pin-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .pin-subtitle {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 28px;
+    }
+    .pin-dots {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .pin-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      border: 2px solid rgba(255,255,255,0.2);
+      transition: all 0.15s;
+    }
+    .pin-dot.filled {
+      background: #4f46e5;
+      border-color: #4f46e5;
+    }
+    .pin-dot.error {
+      background: #ef4444;
+      border-color: #ef4444;
+    }
+    .pin-keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .pin-key {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 500;
+      padding: 16px;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: inherit;
+    }
+    .pin-key:hover { background: rgba(255,255,255,0.12); }
+    .pin-key:active { background: rgba(79,70,229,0.4); }
+    .pin-key.del { font-size: 16px; color: rgba(255,255,255,0.5); }
+    .pin-key.empty { visibility: hidden; }
+    .pin-error {
+      margin-top: 16px;
+      font-size: 13px;
+      color: #ef4444;
+      min-height: 20px;
+    }
+  </style>
 </head>
 <body>
-  <div id="app">
-    <!-- Sidebar -->
+
+  <!-- PIN 화면 -->
+  <div id="pin-screen">
+    <div class="pin-box">
+      <div class="pin-logo">⚙</div>
+      <div class="pin-title">Task OS</div>
+      <div class="pin-subtitle">PIN을 입력하세요</div>
+      <div class="pin-dots">
+        <div class="pin-dot" id="dot-0"></div>
+        <div class="pin-dot" id="dot-1"></div>
+        <div class="pin-dot" id="dot-2"></div>
+        <div class="pin-dot" id="dot-3"></div>
+      </div>
+      <div class="pin-keypad">
+        <button class="pin-key" onclick="pinInput('1')">1</button>
+        <button class="pin-key" onclick="pinInput('2')">2</button>
+        <button class="pin-key" onclick="pinInput('3')">3</button>
+        <button class="pin-key" onclick="pinInput('4')">4</button>
+        <button class="pin-key" onclick="pinInput('5')">5</button>
+        <button class="pin-key" onclick="pinInput('6')">6</button>
+        <button class="pin-key" onclick="pinInput('7')">7</button>
+        <button class="pin-key" onclick="pinInput('8')">8</button>
+        <button class="pin-key" onclick="pinInput('9')">9</button>
+        <button class="pin-key empty"></button>
+        <button class="pin-key" onclick="pinInput('0')">0</button>
+        <button class="pin-key del" onclick="pinDelete()">⌫</button>
+      </div>
+      <div class="pin-error" id="pin-error"></div>
+    </div>
+  </div>
+
+  <!-- 앱 본체 (PIN 통과 후 표시) -->
+  <div id="app" style="display:none;">
     <aside id="sidebar">
       <div class="sidebar-logo">
         <span class="logo-icon">⚙</span>
         <span class="logo-text">Task OS</span>
       </div>
-
       <nav class="sidebar-nav">
         <a href="#" class="nav-item" data-view="dashboard">
           <span class="nav-icon">🏠</span>
@@ -52,7 +168,6 @@
           <span class="nav-label">완료</span>
         </a>
       </nav>
-
       <div class="sidebar-footer">
         <button class="btn-ghost btn-sm" id="btn-seed" title="샘플 데이터 불러오기">
           🌱 샘플 데이터
@@ -62,8 +177,6 @@
         </button>
       </div>
     </aside>
-
-    <!-- Main Content -->
     <main id="main-content">
       <div id="view-container"></div>
     </main>
@@ -82,6 +195,67 @@
 
   <!-- Toast -->
   <div id="toast-container"></div>
+
+  <script>
+    // ── PIN 설정 (여기서 변경하세요) ──────────────────────
+    const CORRECT_PIN = '1234'; // ← 원하는 PIN으로 바꾸세요
+    const SESSION_KEY = 'taskos_pin_ok';
+    // ─────────────────────────────────────────────────────
+
+    let pinValue = '';
+
+    function pinInput(digit) {
+      if (pinValue.length >= 4) return;
+      pinValue += digit;
+      updateDots();
+      if (pinValue.length === 4) {
+        setTimeout(checkPin, 150);
+      }
+    }
+
+    function pinDelete() {
+      pinValue = pinValue.slice(0, -1);
+      updateDots();
+      document.getElementById('pin-error').textContent = '';
+    }
+
+    function updateDots(state = 'normal') {
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById(`dot-${i}`);
+        dot.classList.remove('filled', 'error');
+        if (state === 'error') dot.classList.add('error');
+        else if (i < pinValue.length) dot.classList.add('filled');
+      }
+    }
+
+    function checkPin() {
+      if (pinValue === CORRECT_PIN) {
+        sessionStorage.setItem(SESSION_KEY, '1');
+        document.getElementById('pin-screen').classList.add('hidden');
+        document.getElementById('app').style.display = '';
+      } else {
+        updateDots('error');
+        document.getElementById('pin-error').textContent = '잘못된 PIN입니다. 다시 입력해주세요.';
+        setTimeout(() => {
+          pinValue = '';
+          updateDots();
+        }, 800);
+      }
+    }
+
+    // 키보드 입력도 지원
+    document.addEventListener('keydown', (e) => {
+      if (document.getElementById('pin-screen').classList.contains('hidden')) return;
+      if (e.key >= '0' && e.key <= '9') pinInput(e.key);
+      if (e.key === 'Backspace') pinDelete();
+    });
+
+    // 이미 인증된 세션이면 바로 통과
+    if (sessionStorage.getItem(SESSION_KEY) === '1') {
+      document.getElementById('pin-screen').classList.add('hidden');
+      document.getElementById('app').style.display = '';
+    }
+  </script>
 
   <script src="data.js"></script>
   <script src="views/task-modal.js"></script>
