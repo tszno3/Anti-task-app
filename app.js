@@ -45,9 +45,9 @@ function overdueBadge(dateStr) {
 
 // ── Update sidebar nav badges ────────────────────────────────
 function updateBadges() {
-  const inboxCount  = getTasksByStatus('Inbox').length;
+  const inboxCount   = getTasksByStatus('Inbox').length;
   const clarifyCount = getTasksByStatus('Inbox','Clarifying').filter(t => !t.category || !t.priority || !t.due_date).length;
-  const todayCount  = getTodayTasks().length;
+  const todayCount   = getTodayTasks().length;
   const waitingCount = getWaitingTasks().length;
 
   const setB = (id, n) => {
@@ -100,24 +100,21 @@ document.querySelectorAll('.nav-item').forEach(el => {
 });
 
 // ── Seed / Clear buttons ─────────────────────────────────────
-document.getElementById('btn-seed').addEventListener('click', () => {
+document.getElementById('btn-seed').addEventListener('click', async () => {
   if (getTasks().length > 0) {
-    if (!confirm('기존 데이터가 있습니다. 샘플 데이터를 추가할까요? (기존 데이터는 유지됩니다)')) return;
-    // Force seed regardless
-    localStorage.removeItem(STORAGE_KEY);
-    loadTasks();
-    seedData();
-  } else {
-    seedData();
+    if (!confirm('기존 데이터가 있습니다. 샘플 데이터를 추가할까요?')) return;
   }
+  await seedData();
   showToast('샘플 데이터를 불러왔습니다', 'success');
   refresh();
 });
 
-document.getElementById('btn-clear').addEventListener('click', () => {
+document.getElementById('btn-clear').addEventListener('click', async () => {
   if (!confirm('모든 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
-  localStorage.removeItem(STORAGE_KEY);
-  loadTasks();
+  const tasks = getTasks();
+  for (const t of tasks) {
+    await deleteTask(t.id);
+  }
   showToast('데이터가 초기화되었습니다', 'warning');
   refresh();
 });
@@ -132,7 +129,10 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ── Init ─────────────────────────────────────────────────────
-(function init() {
-  seedData(); // seeds only if empty
+(async function init() {
+  const container = document.getElementById('view-container');
+  container.innerHTML = '<p style="padding:2rem;color:var(--text-muted)">데이터 불러오는 중...</p>';
+  await loadTasks();
+  await seedData();
   navigate('dashboard');
 })();
