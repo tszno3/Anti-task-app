@@ -99,6 +99,86 @@ document.querySelectorAll('.nav-item').forEach(el => {
   });
 });
 
+// ── Backup / Restore ─────────────────────────────────────────
+const BACKUP_API = `${SUPABASE_URL}/rest/v1/task_backups`;
+
+async function createBackup(label = '') {
+  const tasks = getTasks();
+  const backupLabel = label || `백업 ${new Date().toLocaleString('ko-KR')}`;
+  try {
+    await fetch(BACKUP_API, {
+      method: 'POST',
+      headers: HEADERS,
+      body: JSON.stringify({ label: backupLabel, data: tasks })
+    });
+    showToast(`백업 완료: ${backupLabel}`, 'success');
+  } catch(e) {
+    showToast('백업 실패', 'error');
+  }
+}
+
+async function loadBackupList() {
+  const res = await fetch(`${BACKUP_API}?order=created_at.desc&limit=20`, { headers: HEADERS });
+  return await res.json();
+}
+
+async function restoreBackup(backupId) {
+  const res = await fetch(`${BACKUP_API}?id=eq.${backupId}`, { headers: HEADERS });
+  const rows = await res.json();
+  if (!rows || !rows[0]) { showToast('백업 데이터를 찾을 수 없어요', 'error'); return; }
+
+  const tasks = rows[0].data;
+  // 기존 데이터 전체 삭제 후 복원
+  for (const t of getTasks()) await deleteTask(t.id);
+  for (const t of tasks) {
+    await fetch(API, {
+      method: 'POST',
+      headers: HEADERS,
+      body: JSON.stringify(t)
+    });
+  }
+  await loadTasks();
+  showToast('복원 완료!', 'success');
+  refresh();
+}
+
+async function showBackupModal() {
+  const backups = await loadBackupList();
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center;';
+
+  const modal = document.createElement('div');
+  modal.style.cssText = 'background:var(--bg-card, #1e1e2e);border-radius:12px;padding:24px;width:480px;max-width:90vw;max-height:80vh;overflow-y:auto;';
+
+  const listHtml = backups.length === 0
+    ? '<p style="color:var(--text-muted,#888);text-align:center;padding:16px;">저장된 백업이 없어요</p>'
+    : backups.map(b => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.08);">
+          <div>
+            <div style="font-size:14px;font-weight:500;">${b.label}</div>
+            <div style="font-size:12px;color:var(--text-muted,#888);margin-top:2px;">${new Date(b.created_at).toLocaleString('ko-KR')} · ${b.data.length}개 항목</div>
+          </div>
+          <button onclick="restoreBackup(${b.id}).then(()=>this.closest('.backup-overlay').remove())" 
+            style="background:#4f46e5;color:#fff;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:13px;">
+            복원
+          </button>
+        </div>`).join('');
+
+  modal.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="margin:0;font-size:16px;">백업 목록</h3>
+      <button onclick="this.closest('.backup-overlay').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted,#888);">✕</button>
+    </div>
+    ${listHtml}
+  `;
+
+  overlay.className = 'backup-overlay';
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
 // ── Seed / Clear buttons ─────────────────────────────────────
 document.getElementById('btn-seed').addEventListener('click', async () => {
   if (getTasks().length > 0) {
@@ -111,12 +191,31 @@ document.getElementById('btn-seed').addEventListener('click', async () => {
 
 document.getElementById('btn-clear').addEventListener('click', async () => {
   if (!confirm('모든 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
+  await createBackup('초기화 전 자동 백업');
   const tasks = getTasks();
-  for (const t of tasks) {
-    await deleteTask(t.id);
-  }
-  showToast('데이터가 초기화되었습니다', 'warning');
+  for (const t of tasks) await deleteTask(t.id);
+  showToast('데이터가 초기화되었습니다 (자동 백업 완료)', 'warning');
   refresh();
+});
+
+// ── 백업 버튼 동적 추가 ──────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const toolbar = document.getElementById('btn-clear')?.parentElement;
+  if (toolbar) {
+    const btnBackup = document.createElement('button');
+    btnBackup.id = 'btn-backup';
+    btnBackup.textContent = '💾 백업';
+    btnBackup.className = document.getElementById('btn-seed').className;
+    btnBackup.addEventListener('click', () => createBackup());
+    toolbar.appendChild(btnBackup);
+
+    const btnRestore = document.createElement('button');
+    btnRestore.id = 'btn-restore';
+    btnRestore.textContent = '🔄 복원';
+    btnRestore.className = document.getElementById('btn-seed').className;
+    btnRestore.addEventListener('click', showBackupModal);
+    toolbar.appendChild(btnRestore);
+  }
 });
 
 // ── Modal close ──────────────────────────────────────────────
